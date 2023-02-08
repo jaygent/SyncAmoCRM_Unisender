@@ -1,0 +1,62 @@
+version: '3.7'
+
+services:
+          application-backend:
+            build: .
+            #image: php:7.4.23-fpm-alpine3.13
+            tty: true
+            env_file:
+              - .env
+            working_dir: /var/www/application/public
+            volumes:
+                  - .:/var/www/application/public/
+            container_name: application-backend
+
+# Nginx Service
+          application-nginx:
+            image: nginx:alpine
+            container_name: application-nginx
+            tty: true
+            environment:
+              - "APPLICATION_UPSTREAM=application-backend:9000"
+            volumes:
+            - ./nginx/conf.d/:/etc/nginx/conf.d/
+            - ./public/:/var/www/application/public/public/
+            ports:
+                - "80:80"
+# MySQL
+          database:
+            image: library/mysql:8.0
+            container_name: "database"
+            ports:
+            - "3306:3306"
+            volumes:
+              - ./data:/docker-entrypoint-initdb.d
+              - ./data:/var/lib/mysql
+              - ./data:/var/log/mysql
+            environment:
+                MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
+                MYSQL_DATABASE: ${MYSQL_DATABASE}
+                MYSQL_USER: ${MYSQL_USER}
+                MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+          phpmyadmin:
+            image: phpmyadmin
+            container_name: "phpmyadmin"
+            links:
+             - database
+            environment:
+              PMA_HOST: database
+              PMA_PORT: 3306
+              PMA_USER: root
+              PMA_PASSWORD: ${MYSQL_PASSWORD}
+              MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
+              MYSQL_USER: ${MYSQL_USER}
+              MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+            ports:
+              - "8080:80"
+          # Queue Service
+          application-beanstalkd:
+            image: schickling/beanstalkd:latest
+            container_name: application-beanstalkd
+            ports:
+              - "11300:11300"

@@ -1,0 +1,2 @@
+# * * * * * docker/www/vendor/bin/laminas  worker:time >> docker/www/syslog.log 2>&1
+# 0 22 * * * docker/www/vendor/bin/laminas  worker:update-token >> docker/www/syslog.log 2>&1
