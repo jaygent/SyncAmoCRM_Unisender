@@ -57,7 +57,7 @@ $ vendor/bin/phpmig migrate
 > ```
 > Запускает worker для обновления токенов из сервиса очередей
 > ```bash
-> $ vendor/bin/laminas worker:time 
+> $ vendor/bin/laminas worker:update-token
 > ```
 > Так же имеется возможность обновлять токены по cron 
 > ```bash
